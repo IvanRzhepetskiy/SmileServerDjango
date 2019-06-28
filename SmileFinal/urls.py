@@ -22,5 +22,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     url(r'^login_with_token/', views.LoginToken.as_view()),
     url(r'^register/', views.Register.as_view()),
+    url(r'^add_recognition/', views.AddRecognition.as_view()),
 
 ]
