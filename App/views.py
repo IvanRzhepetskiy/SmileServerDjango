@@ -1,5 +1,5 @@
 import traceback
-
+from django.http import JsonResponse
 from django.contrib import auth
 from django.contrib.auth.models import User
 from django.shortcuts import render
@@ -58,6 +58,7 @@ class Register(APIView):
             traceback.print_exc()
             return Response({'success': False})
 
+
 class AddRecognition(APIView):
     renderer_classes = [renderers.JSONRenderer]
     permission_classes = (IsAuthenticated,)
@@ -71,6 +72,42 @@ class AddRecognition(APIView):
             rec = Recognition(user=token.user, time=time)
             rec.save()
             return Response({'success': True})
+        else:
+            return Response({'success': False, 'message' : 'Token is incorrect'})
+        return Response({'success': False})
+
+class GetRecognitionStats(APIView):
+    renderer_classes = [renderers.JSONRenderer]
+    permission_classes = (IsAuthenticated,)
+    def post(self, request):
+        token = request.data.get('Token')
+        if Token.objects.filter(key = token).exists():
+            token_object = Token.objects.get(key = token)
+            user = token_object.user
+            time = []
+            time_and_count_for_graph = {}
+            count = 0
+            all = 0
+            for rec in Recognition.objects.filter(user=user):
+                time.append(rec.time.date())
+                """
+            for i in range(len(time)-1):
+                if time[i].date() == time[i+1].date():
+                    count+=1
+                    all += 1
+                else:
+                    date = str(time[i].date())
+                    time_and_count_for_graph[date] = count
+                    count = 0
+                if i == len(time)-1 and count == 0:
+                    date = str(time[i+1].date())
+                    time_and_count_for_graph[date] = 1
+            dictlist = []
+            for key, value in time_and_count_for_graph.items():
+                temp = [key, value]
+                dictlist.append(temp)
+                """
+            return Response({'success': True, 'time_list': time})
         else:
             return Response({'success': False, 'message' : 'Token is incorrect'})
         return Response({'success': False})
